@@ -1,6 +1,7 @@
 'use client';
 
 import { calculatePriceAction } from '@/app/actions';
+import { calculationInputSchema } from '@/lib/schemas';
 import { useState } from 'react';
 
 export default function CalculatorForm() {
@@ -20,9 +21,20 @@ export default function CalculatorForm() {
     price: '',
     region: '',
   });
+  const [errors, setErrors] = useState<{
+    quantity?: string;
+    price?: string;
+    region?: string;
+  }>({});
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     // Create FormData from our state
@@ -52,6 +64,32 @@ export default function CalculatorForm() {
 
   function handleInputChange(field: keyof typeof formData, value: string) {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  }
+
+  function validateForm(): boolean {
+    const validationResult = calculationInputSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      const newErrors: typeof errors = {};
+
+      validationResult.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof typeof errors;
+        if (field) {
+          newErrors[field] = issue.message;
+        }
+      });
+
+      setErrors(newErrors);
+      return false;
+    }
+
+    setErrors({});
+    return true;
   }
 
   return (
@@ -71,11 +109,17 @@ export default function CalculatorForm() {
             value={formData.quantity}
             onChange={(e) => handleInputChange('quantity', e.target.value)}
             placeholder="e.g., 100"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
+            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
+              errors.quantity ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
-          <p className="mt-1 text-sm text-gray-500">
-            Enter the quantity of items you want to purchase
-          </p>
+          {errors.quantity ? (
+            <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>
+          ) : (
+            <p className="mt-1 text-sm text-gray-500">
+              Enter the quantity of items you want to purchase
+            </p>
+          )}
         </div>
 
         <div>
@@ -93,11 +137,17 @@ export default function CalculatorForm() {
             onChange={(e) => handleInputChange('price', e.target.value)}
             placeholder="e.g., 150.00"
             step="0.01"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
+            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
+              errors.price ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
-          <p className="mt-1 text-sm text-gray-500">
-            Enter the price per item in dollars
-          </p>
+          {errors.price ? (
+            <p className="mt-1 text-sm text-red-600">{errors.price}</p>
+          ) : (
+            <p className="mt-1 text-sm text-gray-500">
+              Enter the price per item in dollars
+            </p>
+          )}
         </div>
 
         <div>
@@ -112,7 +162,9 @@ export default function CalculatorForm() {
             name="region"
             value={formData.region}
             onChange={(e) => handleInputChange('region', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 ${
+              errors.region ? 'border-red-500' : 'border-gray-300'
+            }`}
           >
             <option value="">Select your region...</option>
             <option value="AUK">AUK - Auckland (6.85% tax)</option>
@@ -121,14 +173,23 @@ export default function CalculatorForm() {
             <option value="CHC">CHC - Christchurch (4.00% tax)</option>
             <option value="TAS">TAS - Tasmania (8.25% tax)</option>
           </select>
-          <p className="mt-1 text-sm text-gray-500">
-            Select your region for tax calculation
-          </p>
+          {errors.region ? (
+            <p className="mt-1 text-sm text-red-600">{errors.region}</p>
+          ) : (
+            <p className="mt-1 text-sm text-gray-500">
+              Select your region for tax calculation
+            </p>
+          )}
         </div>
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={
+            isLoading ||
+            Object.keys(errors).some(
+              (key) => errors[key as keyof typeof errors]
+            )
+          }
           className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Calculating...' : 'Calculate Total'}
