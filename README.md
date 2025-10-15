@@ -108,32 +108,6 @@ npm start
 | CHC    | 4.00%    |
 | TAS    | 8.25%    |
 
-## Project Structure
-
-```
-├── app/                  # Next.js App Router
-│   ├── actions.ts        # Server Actions
-│   ├── page.tsx          # Main page
-│   └── layout.tsx        # Root layout
-├── components/           # React components
-│   ├── CalculatorForm.tsx
-│   └── PriceBreakdown.tsx
-├── lib/                  # Business logic
-│   ├── calculator.ts     # Calculation functions
-│   ├── constants.ts      # Discount/tax configuration
-│   └── schemas.ts        # Zod validation schemas
-├── types/                # TypeScript types
-├── __tests__/            # Test files
-└── NOTES.md             # Detailed development notes
-```
-
-## Development Approach
-
-This project demonstrates incremental value delivery through 14 carefully sliced tasks. Each task ships standalone customer value. See [NOTES.md](./NOTES.md) for detailed rationale and task breakdown.
-
-
 ## Documentation
 
 - **[NOTES.md](./NOTES.md)** - Comprehensive development notes, technical decisions, task breakdown with rationale
-
-
