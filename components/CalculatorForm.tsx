@@ -6,25 +6,51 @@ import { useState } from 'react';
 export default function CalculatorForm() {
   const [result, setResult] = useState<{
     subtotal: number;
+    discountAmount: number;
+    discountRate: number;
+    discountedPrice: number;
     error?: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    quantity: '',
+    price: '',
+    region: '',
+  });
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setIsLoading(true);
+
+    // Create FormData from our state
+    const formDataObj = new FormData();
+    formDataObj.append('quantity', formData.quantity);
+    formDataObj.append('price', formData.price);
+    formDataObj.append('region', formData.region);
+
     try {
-      const calculationResult = await calculatePriceAction(formData);
+      const calculationResult = await calculatePriceAction(formDataObj);
       setResult(calculationResult);
     } catch (error) {
-      setResult({ subtotal: 0, error: 'Failed to calculate' });
+      setResult({
+        subtotal: 0,
+        discountAmount: 0,
+        discountRate: 0,
+        discountedPrice: 0,
+        error: 'Failed to calculate',
+      });
     } finally {
       setIsLoading(false);
     }
   }
 
+  function handleInputChange(field: keyof typeof formData, value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }
+
   return (
     <div className="space-y-6">
-      <form action={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label
             htmlFor="quantity"
@@ -36,6 +62,8 @@ export default function CalculatorForm() {
             type="number"
             id="quantity"
             name="quantity"
+            value={formData.quantity}
+            onChange={(e) => handleInputChange('quantity', e.target.value)}
             placeholder="e.g., 100"
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
           />
@@ -55,6 +83,8 @@ export default function CalculatorForm() {
             type="number"
             id="price"
             name="price"
+            value={formData.price}
+            onChange={(e) => handleInputChange('price', e.target.value)}
             placeholder="e.g., 150.00"
             step="0.01"
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
@@ -74,6 +104,8 @@ export default function CalculatorForm() {
           <select
             id="region"
             name="region"
+            value={formData.region}
+            onChange={(e) => handleInputChange('region', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
           >
             <option value="">Select your region...</option>
@@ -105,15 +137,51 @@ export default function CalculatorForm() {
             </div>
           ) : (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Calculation Result
               </h3>
-              <div className="text-2xl font-bold text-blue-600">
-                Subtotal: ${result.subtotal.toLocaleString()}
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="font-medium text-gray-900">
+                    ${result.subtotal.toLocaleString()}
+                  </span>
+                </div>
+
+                {result.discountAmount > 0 && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">
+                        Discount ({Math.round(result.discountRate * 100)}%):
+                      </span>
+                      <span className="font-medium text-green-600">
+                        -${result.discountAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="border-t pt-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-gray-900">
+                          Discounted Price:
+                        </span>
+                        <span className="font-bold text-blue-600 text-lg">
+                          ${result.discountedPrice.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {result.discountAmount === 0 && (
+                  <div className="text-sm text-gray-500 mt-2">
+                    No discount applied. Order $1,000+ for bulk discounts.
+                  </div>
+                )}
               </div>
-              <p className="text-sm text-gray-600 mt-1">
-                This is the basic subtotal (quantity × price). Discounts and tax
-                will be added in future features.
+
+              <p className="text-sm text-gray-600 mt-3">
+                Tax will be calculated based on your selected region in the next
+                step.
               </p>
             </div>
           )}
