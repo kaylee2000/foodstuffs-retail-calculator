@@ -109,6 +109,9 @@ export default function CalculatorForm() {
             value={formData.quantity}
             onChange={(e) => handleInputChange('quantity', e.target.value)}
             placeholder="e.g., 100"
+            min="1"
+            step="1"
+            required
             className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
               errors.quantity ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -136,7 +139,9 @@ export default function CalculatorForm() {
             value={formData.price}
             onChange={(e) => handleInputChange('price', e.target.value)}
             placeholder="e.g., 150.00"
+            min="0.01"
             step="0.01"
+            required
             className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
               errors.price ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -162,6 +167,7 @@ export default function CalculatorForm() {
             name="region"
             value={formData.region}
             onChange={(e) => handleInputChange('region', e.target.value)}
+            required
             className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 ${
               errors.region ? 'border-red-500' : 'border-gray-300'
             }`}
