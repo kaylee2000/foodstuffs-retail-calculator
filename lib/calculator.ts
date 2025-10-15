@@ -1,4 +1,4 @@
-import { DISCOUNT_TIERS } from './constants';
+import { DISCOUNT_TIERS, TAX_RATES } from './constants';
 
 /**
  * Calculate the subtotal for an order
@@ -67,4 +67,39 @@ export function calculateDiscountAmount(subtotal: number): {
 export function applyDiscount(subtotal: number): number {
   const { discountAmount } = calculateDiscountAmount(subtotal);
   return subtotal - discountAmount;
+}
+
+/**
+ * Calculate tax amount based on region and discounted price
+ * @param discountedPrice - Price after discount applied
+ * @param region - Region code (AUK, WLG, WAI, CHC, TAS)
+ * @returns Tax amount and rate information
+ */
+export function calculateTaxAmount(
+  discountedPrice: number,
+  region: string
+): {
+  taxAmount: number;
+  taxRate: number;
+} {
+  const taxRate = TAX_RATES[region as keyof typeof TAX_RATES] || 0;
+  const taxAmount = discountedPrice * taxRate;
+
+  return {
+    taxAmount,
+    taxRate,
+  };
+}
+
+/**
+ * Calculate final total including tax
+ * @param discountedPrice - Price after discount
+ * @param taxAmount - Tax amount to add
+ * @returns Final total
+ */
+export function calculateTotal(
+  discountedPrice: number,
+  taxAmount: number
+): number {
+  return discountedPrice + taxAmount;
 }
