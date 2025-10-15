@@ -6,28 +6,29 @@ import {
   calculateTaxAmount,
   calculateTotal,
 } from '@/lib/calculator';
-
-export type CalculationResult = {
-  subtotal: number;
-  discountAmount: number;
-  discountRate: number;
-  discountedPrice: number;
-  taxAmount: number;
-  taxRate: number;
-  total: number;
-  error?: string;
-};
+import { calculationInputSchema, type CalculationResult } from '@/lib/schemas';
 
 export async function calculatePriceAction(
   formData: FormData
 ): Promise<CalculationResult> {
   try {
-    const quantity = Number(formData.get('quantity'));
-    const pricePerItem = Number(formData.get('price'));
-    const region = formData.get('region') as string;
+    // Extract form data
+    const rawData = {
+      quantity: formData.get('quantity'),
+      price: formData.get('price'),
+      region: formData.get('region'),
+    };
 
-    // Basic validation
-    if (isNaN(quantity) || isNaN(pricePerItem)) {
+    // Validate and transform input with single Zod schema
+    const validationResult = calculationInputSchema.safeParse(rawData);
+
+    if (!validationResult.success) {
+      // Collect all validation errors
+      const errorMessages = validationResult.error.issues.map(
+        (err) => err.message
+      );
+      const errorMessage = errorMessages.join(', ');
+
       return {
         subtotal: 0,
         discountAmount: 0,
@@ -36,37 +37,13 @@ export async function calculatePriceAction(
         taxAmount: 0,
         taxRate: 0,
         total: 0,
-        error: 'Please enter valid numbers',
+        error: errorMessage,
       };
     }
 
-    if (quantity <= 0 || pricePerItem <= 0) {
-      return {
-        subtotal: 0,
-        discountAmount: 0,
-        discountRate: 0,
-        discountedPrice: 0,
-        taxAmount: 0,
-        taxRate: 0,
-        total: 0,
-        error: 'Quantity and price must be positive numbers',
-      };
-    }
+    const { quantity, price, region } = validationResult.data;
 
-    if (!region) {
-      return {
-        subtotal: 0,
-        discountAmount: 0,
-        discountRate: 0,
-        discountedPrice: 0,
-        taxAmount: 0,
-        taxRate: 0,
-        total: 0,
-        error: 'Please select a region',
-      };
-    }
-
-    const subtotal = calculateSubtotal(quantity, pricePerItem);
+    const subtotal = calculateSubtotal(quantity, price);
     const { discountAmount, discountRate } = calculateDiscountAmount(subtotal);
     const discountedPrice = subtotal - discountAmount;
     const { taxAmount, taxRate } = calculateTaxAmount(discountedPrice, region);
