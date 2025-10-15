@@ -9,6 +9,9 @@ export default function CalculatorForm() {
     discountAmount: number;
     discountRate: number;
     discountedPrice: number;
+    taxAmount: number;
+    taxRate: number;
+    total: number;
     error?: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +40,9 @@ export default function CalculatorForm() {
         discountAmount: 0,
         discountRate: 0,
         discountedPrice: 0,
+        taxAmount: 0,
+        taxRate: 0,
+        total: 0,
         error: 'Failed to calculate',
       });
     } finally {
@@ -177,12 +183,29 @@ export default function CalculatorForm() {
                     No discount applied. Order $1,000+ for bulk discounts.
                   </div>
                 )}
-              </div>
 
-              <p className="text-sm text-gray-600 mt-3">
-                Tax will be calculated based on your selected region in the next
-                step.
-              </p>
+                <div className="border-t pt-2 mt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">
+                      Tax ({(result.taxRate * 100).toFixed(2)}%):
+                    </span>
+                    <span className="font-medium text-orange-600">
+                      +${result.taxAmount.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border-t-2 pt-3 mt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">
+                      Final Total:
+                    </span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ${result.total.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
