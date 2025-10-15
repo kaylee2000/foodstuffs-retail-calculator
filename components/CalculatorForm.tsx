@@ -3,6 +3,7 @@
 import { calculatePriceAction } from '@/app/actions';
 import { calculationInputSchema } from '@/lib/schemas';
 import { useState } from 'react';
+import PriceBreakdown from './PriceBreakdown';
 
 export default function CalculatorForm() {
   const [result, setResult] = useState<{
@@ -203,77 +204,36 @@ export default function CalculatorForm() {
       </form>
 
       {result && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6">
           {result.error ? (
-            <div className="text-red-600 font-medium">
-              Error: {result.error}
-            </div>
-          ) : (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Calculation Result
-              </h3>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium text-gray-900">
-                    ${result.subtotal.toLocaleString()}
-                  </span>
-                </div>
-
-                {result.discountAmount > 0 && (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">
-                        Discount ({Math.round(result.discountRate * 100)}%):
-                      </span>
-                      <span className="font-medium text-green-600">
-                        -${result.discountAmount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="border-t pt-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-gray-900">
-                          Discounted Price:
-                        </span>
-                        <span className="font-bold text-blue-600 text-lg">
-                          ${result.discountedPrice.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {result.discountAmount === 0 && (
-                  <div className="text-sm text-gray-500 mt-2">
-                    No discount applied. Order $1,000+ for bulk discounts.
-                  </div>
-                )}
-
-                <div className="border-t pt-2 mt-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">
-                      Tax ({(result.taxRate * 100).toFixed(2)}%):
-                    </span>
-                    <span className="font-medium text-orange-600">
-                      +${result.taxAmount.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border-t-2 pt-3 mt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">
-                      Final Total:
-                    </span>
-                    <span className="text-2xl font-bold text-green-600">
-                      ${result.total.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 text-red-600 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-red-800 font-medium">
+                  Error: {result.error}
+                </span>
               </div>
             </div>
+          ) : (
+            <PriceBreakdown
+              subtotal={result.subtotal}
+              discountAmount={result.discountAmount}
+              discountRate={result.discountRate}
+              discountedPrice={result.discountedPrice}
+              taxAmount={result.taxAmount}
+              taxRate={result.taxRate}
+              total={result.total}
+            />
           )}
         </div>
       )}
