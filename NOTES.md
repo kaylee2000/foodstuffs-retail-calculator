@@ -36,7 +36,6 @@ The exercise emphasizes "shipping incremental value to customers" with each task
 
 Instead: Implement features with immediate customer value, then add comprehensive tests (Task 9). Each PR clearly states customer benefit: "Users can now see bulk order savings."
 
-
 ## Task Breakdown - Rationale
 
 Each task is designed to deliver standalone customer value. Here's the detailed breakdown:
@@ -71,7 +70,7 @@ Each task is designed to deliver standalone customer value. Here's the detailed 
 - $7,000+: 7% discount
 - $10,000+: 10% discount
 - $50,000+: 15% discount
-  
+
 ### Task 5: Add Tax Calculation [3 points]
 
 **What**: Implement region-based tax rates, apply to discounted price
@@ -84,7 +83,7 @@ Each task is designed to deliver standalone customer value. Here's the detailed 
 - WAI: 6.25%
 - CHC: 4.00%
 - TAS: 8.25%
-  
+
 ### Task 6: Input Validation with Zod [5 points]
 
 **What**: Create Zod schemas, validate in Server Actions, show errors
@@ -95,7 +94,7 @@ Each task is designed to deliver standalone customer value. Here's the detailed 
 - Quantity: positive integer
 - Price: positive number
 - Region: must be one of 5 valid codes
-  
+
 ### Task 7: Client-Side Form Validation [3 points]
 
 **What**: HTML5 validation attributes, client error display, disable invalid submit
@@ -119,7 +118,7 @@ Each task is designed to deliver standalone customer value. Here's the detailed 
 - Boundary cases (999, 1000, 1001 for each tier)
 - All 5 region tax rates
 - Edge cases (zero, negative, very large numbers)
-  
+
 **Priority 1 (Must Complete): Tasks 1-6**
 
 - Foundation + all core features working
@@ -244,7 +243,6 @@ __tests__/
 
 - Display total price with breakdown
 
-
 ## Assumptions Made
 
 1. **Currency**: All prices in NZD ($)
@@ -256,14 +254,12 @@ __tests__/
 7. **No persistence**: No database - calculations are stateless
 8. **Single calculation**: No shopping cart - one calculation at a time
 
-
-
 ## Success Criteria
 
-* Clean, readable TypeScript code following coding principles
-* At least one comprehensive test suite (Task 9)
-* Each completed task has a PR showing incremental value
-* Clear communication in PRs, issues, and these notes
-* Working application that meets all product specifications
-* Demonstrates understanding of modern app architecture
-* Shows ability to slice work for incremental delivery
+- Clean, readable TypeScript code following coding principles
+- At least one comprehensive test suite (Task 9)
+- Each completed task has a PR showing incremental value
+- Clear communication in PRs, issues, and these notes
+- Working application that meets all product specifications
+- Demonstrates understanding of modern app architecture
+- Shows ability to slice work for incremental delivery
