@@ -4,6 +4,21 @@ import { calculatePriceAction } from '@/app/actions';
 import { calculationInputSchema } from '@/lib/schemas';
 import { useState } from 'react';
 import PriceBreakdown from './PriceBreakdown';
+import Select from './ui/Select';
+import Input from './ui/Input';
+import Alert from './ui/Alert';
+import Button from './ui/Button';
+import Spinner from './ui/Spinner';
+
+type FormErrors = { quantity?: string; price?: string; region?: string };
+
+const regionOptions = [
+  { value: 'AUK', label: 'AUK - Auckland (6.85% tax)' },
+  { value: 'WLG', label: 'WLG - Wellington (8.00% tax)' },
+  { value: 'WAI', label: 'WAI - Waikato (6.25% tax)' },
+  { value: 'CHC', label: 'CHC - Christchurch (4.00% tax)' },
+  { value: 'TAS', label: 'TAS - Tasmania (8.25% tax)' },
+];
 
 export default function CalculatorForm() {
   const [result, setResult] = useState<{
@@ -22,11 +37,7 @@ export default function CalculatorForm() {
     price: '',
     region: '',
   });
-  const [errors, setErrors] = useState<{
-    quantity?: string;
-    price?: string;
-    region?: string;
-  }>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,10 +87,10 @@ export default function CalculatorForm() {
     const validationResult = calculationInputSchema.safeParse(formData);
 
     if (!validationResult.success) {
-      const newErrors: typeof errors = {};
+      const newErrors: FormErrors = {};
 
       validationResult.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof typeof errors;
+        const field = issue.path[0] as keyof FormErrors;
         if (field) {
           newErrors[field] = issue.message;
         }
@@ -96,100 +107,50 @@ export default function CalculatorForm() {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="quantity"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Number of Items
-          </label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            value={formData.quantity}
-            onChange={(e) => handleInputChange('quantity', e.target.value)}
-            placeholder="e.g., 100"
-            min="1"
-            step="1"
-            required
-            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
-              errors.quantity ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          {errors.quantity ? (
-            <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-500">
-              Enter the quantity of items you want to purchase
-            </p>
-          )}
-        </div>
+        <Input
+          id="quantity"
+          name="quantity"
+          type="number"
+          label="Number of Items"
+          value={formData.quantity}
+          onChange={(e) => handleInputChange('quantity', e.target.value)}
+          placeholder="e.g., 100"
+          min={1}
+          step={1}
+          required
+          error={errors.quantity}
+          helpText="Enter the quantity of items you want to purchase"
+        />
 
-        <div>
-          <label
-            htmlFor="price"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Price Per Item
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={(e) => handleInputChange('price', e.target.value)}
-            placeholder="e.g., 150.00"
-            min="0.01"
-            step="0.01"
-            required
-            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
-              errors.price ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          {errors.price ? (
-            <p className="mt-1 text-sm text-red-600">{errors.price}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-500">
-              Enter the price per item in dollars
-            </p>
-          )}
-        </div>
+        <Input
+          id="price"
+          name="price"
+          type="number"
+          label="Price Per Item"
+          value={formData.price}
+          onChange={(e) => handleInputChange('price', e.target.value)}
+          placeholder="e.g., 150.00"
+          min={0.01}
+          step={0.01}
+          required
+          error={errors.price}
+          helpText="Enter the price per item in dollars"
+        />
 
-        <div>
-          <label
-            htmlFor="region"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Region Code
-          </label>
-          <select
-            id="region"
-            name="region"
-            value={formData.region}
-            onChange={(e) => handleInputChange('region', e.target.value)}
-            required
-            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 ${
-              errors.region ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            <option value="">Select your region...</option>
-            <option value="AUK">AUK - Auckland (6.85% tax)</option>
-            <option value="WLG">WLG - Wellington (8.00% tax)</option>
-            <option value="WAI">WAI - Waikato (6.25% tax)</option>
-            <option value="CHC">CHC - Christchurch (4.00% tax)</option>
-            <option value="TAS">TAS - Tasmania (8.25% tax)</option>
-          </select>
-          {errors.region ? (
-            <p className="mt-1 text-sm text-red-600">{errors.region}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-500">
-              Select your region for tax calculation
-            </p>
-          )}
-        </div>
+        <Select
+          id="region"
+          name="region"
+          label="Region Code"
+          value={formData.region}
+          onChange={(e) => handleInputChange('region', e.target.value)}
+          placeholder="Select your region..."
+          options={regionOptions}
+          required
+          error={errors.region}
+          helpText="Select your region for tax calculation"
+        />
 
-        <button
+        <Button
           type="submit"
           disabled={
             isLoading ||
@@ -197,33 +158,33 @@ export default function CalculatorForm() {
               (key) => errors[key as keyof typeof errors]
             )
           }
-          className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          loading={isLoading}
+          className="w-full"
         >
-          {isLoading ? 'Calculating...' : 'Calculate Total'}
-        </button>
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Spinner className="-ml-1 mr-3 text-white" />
+              Calculating...
+            </div>
+          ) : (
+            'Calculate Total'
+          )}
+        </Button>
       </form>
 
       {result && (
         <div className="mt-6">
           {result.error ? (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 text-red-600 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-red-800 font-medium">
-                  Error: {result.error}
-                </span>
-              </div>
-            </div>
+            <Alert
+              variant="error"
+              title="Calculation Error"
+              onClose={() => {
+                setResult(null);
+                setErrors({});
+              }}
+            >
+              {result.error}
+            </Alert>
           ) : (
             <PriceBreakdown
               subtotal={result.subtotal}
