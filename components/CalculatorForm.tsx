@@ -5,6 +5,8 @@ import { calculationInputSchema } from '@/lib/schemas';
 import { useState } from 'react';
 import PriceBreakdown from './PriceBreakdown';
 
+type FormErrors = { quantity?: string; price?: string; region?: string };
+
 export default function CalculatorForm() {
   const [result, setResult] = useState<{
     subtotal: number;
@@ -22,11 +24,7 @@ export default function CalculatorForm() {
     price: '',
     region: '',
   });
-  const [errors, setErrors] = useState<{
-    quantity?: string;
-    price?: string;
-    region?: string;
-  }>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,10 +74,10 @@ export default function CalculatorForm() {
     const validationResult = calculationInputSchema.safeParse(formData);
 
     if (!validationResult.success) {
-      const newErrors: typeof errors = {};
+      const newErrors: FormErrors = {};
 
       validationResult.error.issues.forEach((issue) => {
-        const field = issue.path[0] as keyof typeof errors;
+        const field = issue.path[0] as keyof FormErrors;
         if (field) {
           newErrors[field] = issue.message;
         }
