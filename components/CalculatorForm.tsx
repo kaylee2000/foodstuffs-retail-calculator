@@ -4,8 +4,18 @@ import { calculatePriceAction } from '@/app/actions';
 import { calculationInputSchema } from '@/lib/schemas';
 import { useState } from 'react';
 import PriceBreakdown from './PriceBreakdown';
+import Select from './ui/Select';
+import Input from './ui/Input';
 
 type FormErrors = { quantity?: string; price?: string; region?: string };
+
+const regionOptions = [
+  { value: 'AUK', label: 'AUK - Auckland (6.85% tax)' },
+  { value: 'WLG', label: 'WLG - Wellington (8.00% tax)' },
+  { value: 'WAI', label: 'WAI - Waikato (6.25% tax)' },
+  { value: 'CHC', label: 'CHC - Christchurch (4.00% tax)' },
+  { value: 'TAS', label: 'TAS - Tasmania (8.25% tax)' },
+];
 
 export default function CalculatorForm() {
   const [result, setResult] = useState<{
@@ -94,98 +104,48 @@ export default function CalculatorForm() {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="quantity"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Number of Items
-          </label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            value={formData.quantity}
-            onChange={(e) => handleInputChange('quantity', e.target.value)}
-            placeholder="e.g., 100"
-            min="1"
-            step="1"
-            required
-            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
-              errors.quantity ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          {errors.quantity ? (
-            <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-500">
-              Enter the quantity of items you want to purchase
-            </p>
-          )}
-        </div>
+        <Input
+          id="quantity"
+          name="quantity"
+          type="number"
+          label="Number of Items"
+          value={formData.quantity}
+          onChange={(e) => handleInputChange('quantity', e.target.value)}
+          placeholder="e.g., 100"
+          min={1}
+          step={1}
+          required
+          error={errors.quantity}
+          helpText="Enter the quantity of items you want to purchase"
+        />
 
-        <div>
-          <label
-            htmlFor="price"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Price Per Item
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={(e) => handleInputChange('price', e.target.value)}
-            placeholder="e.g., 150.00"
-            min="0.01"
-            step="0.01"
-            required
-            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900 ${
-              errors.price ? 'border-red-500' : 'border-gray-300'
-            }`}
-          />
-          {errors.price ? (
-            <p className="mt-1 text-sm text-red-600">{errors.price}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-500">
-              Enter the price per item in dollars
-            </p>
-          )}
-        </div>
+        <Input
+          id="price"
+          name="price"
+          type="number"
+          label="Price Per Item"
+          value={formData.price}
+          onChange={(e) => handleInputChange('price', e.target.value)}
+          placeholder="e.g., 150.00"
+          min={0.01}
+          step={0.01}
+          required
+          error={errors.price}
+          helpText="Enter the price per item in dollars"
+        />
 
-        <div>
-          <label
-            htmlFor="region"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Region Code
-          </label>
-          <select
-            id="region"
-            name="region"
-            value={formData.region}
-            onChange={(e) => handleInputChange('region', e.target.value)}
-            required
-            className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 ${
-              errors.region ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            <option value="">Select your region...</option>
-            <option value="AUK">AUK - Auckland (6.85% tax)</option>
-            <option value="WLG">WLG - Wellington (8.00% tax)</option>
-            <option value="WAI">WAI - Waikato (6.25% tax)</option>
-            <option value="CHC">CHC - Christchurch (4.00% tax)</option>
-            <option value="TAS">TAS - Tasmania (8.25% tax)</option>
-          </select>
-          {errors.region ? (
-            <p className="mt-1 text-sm text-red-600">{errors.region}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-500">
-              Select your region for tax calculation
-            </p>
-          )}
-        </div>
+        <Select
+          id="region"
+          name="region"
+          label="Region Code"
+          value={formData.region}
+          onChange={(e) => handleInputChange('region', e.target.value)}
+          placeholder="Select your region..."
+          options={regionOptions}
+          required
+          error={errors.region}
+          helpText="Select your region for tax calculation"
+        />
 
         <button
           type="submit"
