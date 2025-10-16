@@ -6,6 +6,9 @@ import { useState } from 'react';
 import PriceBreakdown from './PriceBreakdown';
 import Select from './ui/Select';
 import Input from './ui/Input';
+import Alert from './ui/Alert';
+import Button from './ui/Button';
+import Spinner from './ui/Spinner';
 
 type FormErrors = { quantity?: string; price?: string; region?: string };
 
@@ -147,7 +150,7 @@ export default function CalculatorForm() {
           helpText="Select your region for tax calculation"
         />
 
-        <button
+        <Button
           type="submit"
           disabled={
             isLoading ||
@@ -155,33 +158,33 @@ export default function CalculatorForm() {
               (key) => errors[key as keyof typeof errors]
             )
           }
-          className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          loading={isLoading}
+          className="w-full"
         >
-          {isLoading ? 'Calculating...' : 'Calculate Total'}
-        </button>
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Spinner className="-ml-1 mr-3 text-white" />
+              Calculating...
+            </div>
+          ) : (
+            'Calculate Total'
+          )}
+        </Button>
       </form>
 
       {result && (
         <div className="mt-6">
           {result.error ? (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 text-red-600 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-red-800 font-medium">
-                  Error: {result.error}
-                </span>
-              </div>
-            </div>
+            <Alert
+              variant="error"
+              title="Calculation Error"
+              onClose={() => {
+                setResult(null);
+                setErrors({});
+              }}
+            >
+              {result.error}
+            </Alert>
           ) : (
             <PriceBreakdown
               subtotal={result.subtotal}
